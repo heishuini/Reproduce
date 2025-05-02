@@ -126,8 +126,13 @@ class BasicBlock(nn.Module):
    +x
    ReLU
 '''
-
 class Bottleneck(nn.Module):
+    '''
+    注意：原论文中，在虚线残差结构的主分支上，第一个1x1卷积层的步距是2，第二个3x3卷积层步距是1。
+    但在pytorch官方实现过程中是第一个1x1卷积层的步距是1，第二个3x3卷积层步距是2，
+    这么做的好处是能够在top1上提升大概0.5%的准确率。
+    可参考Resnet v1.5 https://ngc.nvidia.com/catalog/model-scripts/nvidia:resnet_50_v1_5_for_pytorch
+    '''
     expansion: int = 4
     
     def __init__(self,
@@ -142,15 +147,17 @@ class Bottleneck(nn.Module):
     ) -> None:
         super().__init__()
         
+        
+        
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
         
         # 输入通道数，可变
         width = int(planes * (base_width / 64.0)) * groups
         
-        self.conv1 = conv1x1(inplanes, width)
+        self.conv1 = conv1x1(inplanes, width) # 步长是1
         self.bn1 = norm_layer(width) 
-        self.conv2 = conv3x3(width, width, stride, groups, dilation)
+        self.conv2 = conv3x3(width, width, stride, groups, dilation) # 步长是2可变
         self.bn2 = norm_layer(width) 
         # 默认是4倍，增加通道数
         self.conv3 = conv1x1(width, planes * self.expansion)
