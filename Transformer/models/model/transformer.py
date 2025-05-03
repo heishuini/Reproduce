@@ -58,7 +58,7 @@ class Transformer(nn.Module):
     
     # 源
     def make_src_mask(self, src):
-        src_mask = (src != self.src_pad_idx).unsqueeze(1).unsqueeze(2) # 掩码的位置置False
+        src_mask = (src != self.src_pad_idx).unsqueeze(1).unsqueeze(2) # 是掩码的位置则置False
         # 从 (batch_size, seq_len) 扩展为 (batch_size, 1, 1, seq_len)，以便广播到多头注意力的所有头。
         return src_mask
     
