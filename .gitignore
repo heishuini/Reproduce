@@ -4,3 +4,7 @@
 
 # Python 自动生成的目录，用于存储编译后的字节码（.pyc 文件），目的是加速模块导入
 __pycache__
+
+#---- GAN ----
+/GAN/data
+/GAN/images
