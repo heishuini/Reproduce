@@ -21,7 +21,6 @@ class FeedForward(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-
 class Attention(nn.Module):
     def __init__(self, dim, heads = 8, dim_head = 64, dropout = 0.):
         super().__init__()
@@ -129,7 +128,7 @@ class ViT(nn.Module):
         self.to_patch_embedding = nn.Sequential(
             # 输入为(b, c, H, W),拆为如下形式(b, n, d)
             Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_height, p2 = patch_width),
-            nn.LayerNorm(patch_dim),
+            nn.LayerNorm(patch_dim),  # transformer 一般用的是LN
             nn.Linear(patch_dim, dim),
             nn.LayerNorm(dim),
         )
@@ -161,7 +160,7 @@ class ViT(nn.Module):
 
         x = self.dropout(x)
         
-        # 进入transformer
+        # 进入transformer-encoder
         x = self.transformer(x)
 
         # 取cls token，第0个
@@ -172,3 +171,26 @@ class ViT(nn.Module):
         
         # 分类头
         return self.mlp_head(x)
+    
+    
+import torch
+# pip install vit-pytorch
+from vit_pytorch import ViT
+
+if __name__ == "__main__":
+
+    v = ViT(
+        image_size = 256,
+        patch_size = 32,
+        num_classes = 1000,
+        dim = 1024,
+        depth = 6,
+        heads = 16,
+        mlp_dim = 2048,
+        dropout = 0.1,
+        emb_dropout = 0.1
+    )
+
+    img = torch.randn(1, 3, 256, 256)
+
+    preds = v(img) # (1, 1000)
